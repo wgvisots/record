@@ -1,0 +1,10 @@
+*
+!.gitignore
+!hasher.sh
+!hashes.txt
+!hashes.tsr
+!hashes.txt.ots
+!cacert.pem
+!tsa.crt
+!*.sha256
+
