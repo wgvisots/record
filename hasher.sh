@@ -31,11 +31,23 @@ find "$PHOTOS" -path "$PHOTOS/$here" -prune -o -type f -iname '*.nef' -print \
 sort -u "$SEEN" > "$tmp/seen"
 comm -13 "$tmp/seen" "$tmp/all" > "$tmp/new"
 
-# 2. Hash them, strip directories, keep only hashes not already in the list.
-#    -r: don't run sha256sum at all (and hash empty stdin) when nothing is new.
-tr '\n' '\0' < "$tmp/new" \
-  | xargs -0 -r sha256sum \
-  | sed 's#^\([0-9a-f]\{64\}\)  .*/#\1  #' \
+# 2. Hash them, showing progress on the terminal (silent when not a tty).
+#    Not a pipeline, so with set -e any unreadable file aborts the run
+#    before anything is appended or marked as seen.
+total=$(wc -l < "$tmp/new")
+n=0
+: > "$tmp/hashed"
+while IFS= read -r f; do
+  n=$((n + 1))
+  if [ -t 2 ]; then
+    printf '\r\033[K[%d/%d] %d%%  %s' "$n" "$total" $((100 * n / total)) "$f" >&2
+  fi
+  sha256sum -- "$f" >> "$tmp/hashed"
+done < "$tmp/new"
+if [ -t 2 ] && [ "$total" -gt 0 ]; then printf '\r\033[K' >&2; fi
+
+# Strip directories, keep only hashes not already in the list.
+sed 's#^\([0-9a-f]\{64\}\)  .*/#\1  #' "$tmp/hashed" \
   | awk 'FILENAME == ARGV[1] { seen[$1]; next }
          !($1 in seen)       { seen[$1]; print }' "$LIST" - \
   > "$tmp/add"
@@ -61,11 +73,22 @@ openssl ts -verify -data "$LIST" -in "$tmp/hashes.tsr" \
      -CAfile cacert.pem -untrusted tsa.crt
 mv "$tmp/hashes.tsr" hashes.tsr      # only replace the old proof once verified
 
-# 5. Second, independent timestamp (Bitcoin) if the client is installed.
-#    Run `ots upgrade hashes.txt.ots` a few hours later to complete it.
-if command -v ots >/dev/null 2>&1; then
-  rm -f "$LIST.ots"
-  ots stamp "$LIST"
+# 5. Second, independent timestamp (Bitcoin) via OpenTimestamps (ots_mini.py).
+#    First save the previous proof's Bitcoin confirmation, if the calendars
+#    have it by now, in its own commit; then replace it with a fresh stamp.
+#    check_stamps.sh completes the new one once it's in a block (a few hours).
+if python3 -I -c 'import opentimestamps' 2>/dev/null; then
+  if [ -f "$LIST.ots" ]; then
+    python3 -I ./ots_mini.py upgrade "$LIST.ots" >/dev/null 2>&1 || true
+    if [ -n "$(git status --porcelain -- "$LIST.ots")" ]; then
+      git commit -q -m "Upgrade previous OpenTimestamps proof" -- "$LIST.ots"
+    fi
+    mv "$LIST.ots" "$tmp/prev.ots"
+  fi
+  if ! python3 -I ./ots_mini.py stamp "$LIST"; then
+    echo "WARNING: OpenTimestamps stamp failed; committing with FreeTSA only" >&2
+    if [ -f "$tmp/prev.ots" ]; then mv "$tmp/prev.ots" "$LIST.ots"; fi
+  fi
 fi
 
 # 6. Commit list + proofs together, so each commit is a verifiable pair.

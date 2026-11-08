@@ -8,3 +8,7 @@
 !tsa.crt
 !*.sha256
 
+!common.sh
+!prove.sh
+!check_stamps.sh
+!ots_mini.py
