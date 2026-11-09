@@ -104,6 +104,10 @@ Exit status for every command: `0` = OK / verified, `1` = error / failed,
   Hashes already in the list won't be added twice.
 - **Offline:** the commit is made locally, and the next `hasher.sh` or
   `check_stamps.sh` run pushes it.
+- **Push rejected:** GitHub only accepts signed commits added on top of `main`
+  (ruleset "protect main": no force-push, no deletion, signatures required,
+  no bypass). A rejected push usually means a commit wasn't signed; check that
+  `git config commit.gpgsign` is `true` and the signing key is available.
 - **`FINGERPRINT MISMATCH`:** a FreeTSA certificate file changed. Don't continue
   until you know why. An OpenSSL upgrade that changes the fingerprint output
   format can also cause this (a false alarm, but check).
