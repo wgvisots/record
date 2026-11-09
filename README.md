@@ -5,7 +5,7 @@ with independent timestamps proving each hash existed by a given date.
 
 ## How it works
 
-1. **`hasher.sh`** finds new `.nef` files in the photo folder (the folder that
+1. **`hasher.sh`** finds new `.nef` and `.dng` files (any letter case) in the photo folder (the folder that
    contains `record/`), hashes them, and appends any new hashes to `hashes.txt`.
 2. The whole list is timestamped twice:
    - **FreeTSA** (RFC 3161): a signed reply, `hashes.tsr`, available right away.
@@ -112,8 +112,12 @@ Exit status for every command: `0` = OK / verified, `1` = error / failed,
   until you know why. An OpenSSL upgrade that changes the fingerprint output
   format can also cause this (a false alarm, but check).
 - **Photo folder elsewhere:** `PHOTOS=/path/to/photos record/hasher.sh`.
-- **Other file types:** only `.nef` is recorded. To add more, in `hasher.sh`
-  change `-iname '*.nef'` to `\( -iname '*.nef' -o -iname '*.jpg' \)`.
+- **Other file types:** only `.nef` and `.dng` are recorded. To add more, add
+  another `-o -iname '*.ext'` inside the `\( ... \)` on the `find` line in `hasher.sh`.
+- **A file edited in place isn't re-hashed:** files are tracked by path, so if a
+  program rewrites a recorded file (some do this to DNGs), its new hash isn't
+  recorded. The original hash stays in the list. To record the edited version
+  as well, remove its line from `.hashed_paths`.
 - **Duplicate filenames:** Nikon numbering wraps at 9999, so the same
   `DSC_####.NEF` name may appear with different hashes. That's expected; the
   hash is what identifies a photo.
