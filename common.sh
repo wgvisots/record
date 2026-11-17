@@ -1,3 +1,11 @@
+###########################################################################
+# common.sh
+#
+# Copyright 2026 W. Greg Visotski
+#
+# All rights reserved.
+###########################################################################
+
 # Shared helpers for prove.sh and check_stamps.sh.  Source, don't run.
 # Each function prints one human-readable line and returns:
 #   0 = verified, 1 = failed / mismatch, 2 = pending / not checkable

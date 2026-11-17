@@ -1,4 +1,12 @@
 #!/bin/sh
+###########################################################################
+# check_stamps.sh
+#
+# Copyright 2026 W. Greg Visotski
+#
+# All rights reserved.
+###########################################################################
+
 # check_stamps.sh — confirm the latest submission was accepted everywhere:
 #   FreeTSA: the signed reply in hashes.tsr is valid for hashes.txt
 #   Bitcoin: fetch the completed OpenTimestamps proof (commit + push it), verify it

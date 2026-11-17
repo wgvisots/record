@@ -1,4 +1,12 @@
 #!/bin/sh
+###########################################################################
+# hasher.sh
+#
+# Copyright 2026 W. Greg Visotski
+#
+# All rights reserved.
+###########################################################################
+
 # Record SHA-256 hashes of new raw files, timestamp the list with an
 # RFC 3161 TSA (and OpenTimestamps if installed), then commit and push.
 set -eu

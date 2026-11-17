@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+###########################################################################
+# ots_mini.py
+#
+# Copyright 2026 W. Greg Visotski
+#
+# All rights reserved.
+###########################################################################
+
 """ots_mini.py: minimal OpenTimestamps client built only on the distro's
 python3-opentimestamps library (apt), standard library otherwise.
 
