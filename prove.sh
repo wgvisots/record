@@ -1,4 +1,12 @@
 #!/bin/sh
+###########################################################################
+# prove.sh
+#
+# Copyright 2026 W. Greg Visotski
+#
+# All rights reserved.
+###########################################################################
+
 # prove.sh <photo>...
 # For each file: when was its hash first committed, and which timestamp
 # proofs (FreeTSA, Bitcoin via OpenTimestamps) cover it.
