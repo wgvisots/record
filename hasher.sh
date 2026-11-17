@@ -34,7 +34,7 @@ trap 'rm -rf "$tmp"' EXIT
 # 1. Find raw files whose path hasn't been hashed before.
 #    (Assumes no newlines in filenames, which camera files never have.)
 here=$(basename "$PWD")
-find "$PHOTOS" -path "$PHOTOS/$here" -prune -o -type f -iname '*.nef' -print \
+find "$PHOTOS" -path "$PHOTOS/$here" -prune -o -type f \( -iname '*.nef' -o -iname '*.dng' \) -print \
   | sort > "$tmp/all"
 sort -u "$SEEN" > "$tmp/seen"
 comm -13 "$tmp/seen" "$tmp/all" > "$tmp/new"
